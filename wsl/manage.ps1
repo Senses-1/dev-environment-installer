@@ -1,3 +1,5 @@
+$wslRoot = Join-Path $env:USERPROFILE "WSL"
+
 while ($true) {
 
     $distros = @(& "$PSScriptRoot\list.ps1")
@@ -34,6 +36,7 @@ while ($true) {
         continue
     }
 
+    # Create
     if ($index -eq $createOption) {
 
         $name = Read-Host "Enter new WSL name"
@@ -43,29 +46,44 @@ while ($true) {
             continue
         }
 
-        & "$PSScriptRoot\create.ps1" -Name $name
+        $location = Join-Path $wslRoot $name
+
+        & "$PSScriptRoot\create.ps1" `
+            -Name $name `
+            -Location $location
 
         continue
     }
 
+    # Existing WSL
     $selectedDistro = $distros[$index - 1]
 
     Write-Output ""
     Write-Output "Selected: $selectedDistro"
     Write-Output ""
-    Write-Output "[1] Remove"
+    Write-Output "[1] Open"
+    Write-Output "[2] Remove"
     Write-Output "[0] Back"
     Write-Output ""
 
     $action = Read-Host "Select action"
 
     if ($action -eq "1") {
-        & "$PSScriptRoot\remove.ps1" -Name $selectedDistro
+
+        & "$PSScriptRoot\open.ps1" `
+            -Name $selectedDistro
+    }
+    elseif ($action -eq "2") {
+
+        & "$PSScriptRoot\remove.ps1" `
+            -Name $selectedDistro
     }
     elseif ($action -eq "0") {
+
         continue
     }
     else {
+
         Write-Error "Invalid action."
     }
 }
